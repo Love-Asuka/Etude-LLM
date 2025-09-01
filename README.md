@@ -1,4 +1,4 @@
-# Etude LLM项目
+# Etude LLMv0.2
 
 ## 项目简介
 
