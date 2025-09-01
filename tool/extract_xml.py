@@ -5,49 +5,49 @@ from lxml import etree
 from tqdm import tqdm
 
 def clean_wiki_text(text):
-    """维基文本清洗函数"""
+
     if not text:
         return ""
     
-    # 1. 移除XML注释
+
     text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
     
-    # 2. 分阶段移除嵌套模板（最多处理10层嵌套）
+
     for _ in range(10):
         new_text = re.sub(r'{{(?:[^{}]|{[^{}]*})*}}', '', text, flags=re.DOTALL)
         if new_text == text:
             break
         text = new_text
     
-    # 3. 处理链接（保留显示文本）
+
     text = re.sub(r'\[\[(?:[^|\]]*\|)?([^\]]+)\]\]', r'\1', text)
     
-    # 4. 移除HTML标签和引用
+
     text = re.sub(r'<[^>]+>', '', text)
     
-    # 5. 移除表格和画廊
+
     text = re.sub(r'{\|.*?\|}', '', text, flags=re.DOTALL)
     text = re.sub(r'<gallery>.*?</gallery>', '', text, flags=re.DOTALL)
     
-    # 6. 保留中文、基本标点和换行
+
     text = re.sub(
         r'[^\u4e00-\u9fff，。！？；："“”‘’（）《》【】、\s]', 
         '', 
         text
     )
     
-    # 7. 规范化空白字符
-    text = re.sub(r'[ \t\r\f\v]+', ' ', text)  # 合并连续空白
-    text = re.sub(r'( ?\n ?)+', '\n', text)     # 规范化换行
+
+    text = re.sub(r'[ \t\r\f\v]+', ' ', text)  
+    text = re.sub(r'( ?\n ?)+', '\n', text)     
     
-    # 8. 移除短行（小于5字符）和空行
+
     lines = [line.strip() for line in text.split('\n') 
              if len(line.strip()) >= 5]
     
     return '\n'.join(lines)
 
 def process_single_xml(input_path, output_path):
-    """处理单个XML文件"""
+
     # 支持bz2压缩文件直接读取
     if input_path.endswith('.bz2'):
         open_func = bz2.open
