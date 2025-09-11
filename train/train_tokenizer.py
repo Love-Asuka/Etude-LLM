@@ -15,7 +15,7 @@ class TokenizerConfig:
     
     VOCAB_SIZE = 20000
 
-    SPECIAL_TOKENS = ["<|endoftext|>", "<|pad|>", "[UNK]", "[CLS]", "[SEP]","<|im_end|>", "<|im_start|>"]
+    SPECIAL_TOKENS = ["<|endoftext|>", "<|pad|>", "[UNK]", "<|im_end|>", "<|im_start|>"]
     
     TOKENIZER_FILE = "weight/tokenizer.json" 
 
@@ -67,4 +67,5 @@ def train_the_one_tokenizer():
 
 
 if __name__ == "__main__":
+
     train_the_one_tokenizer()
