@@ -47,25 +47,24 @@ def train_the_one_tokenizer():
     tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
     tokenizer.pre_tokenizer = Metaspace()
     tokenizer.decoder = MetaspaceDecoder()
-    print("初始化BPE分词器，并设置Metaspace...完成。")
 
     trainer = BpeTrainer(vocab_size=cfg.VOCAB_SIZE, special_tokens=cfg.SPECIAL_TOKENS)
-    print("配置BPE训练器...完成。")
 
-    print("开始训练，使用通用数据迭代器...")
+    print("开始训练")
     data_iterator = universal_text_iterator(cfg.FILES_PATTERNS)
     tokenizer.train_from_iterator(data_iterator, trainer=trainer)
-    print("...训练结束。")
+    print("训练结束")
 
     output_dir = os.path.dirname(cfg.TOKENIZER_FILE)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
     tokenizer.save(cfg.TOKENIZER_FILE)
-    print(f"完美的分词器已经保存到: {cfg.TOKENIZER_FILE}")
+    print(f"已经保存到: {cfg.TOKENIZER_FILE}")
     print(f"它的词表大小是: {tokenizer.get_vocab_size()}")
 
 
 if __name__ == "__main__":
 
     train_the_one_tokenizer()
+
