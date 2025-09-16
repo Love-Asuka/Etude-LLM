@@ -6,9 +6,7 @@ from model.model import Etude, EtudeConfig
 
 import time
 
-# -------------------------------------------------------------------
-# 初始化部分 (和原来一样)
-# -------------------------------------------------------------------
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"正在使用设备: {device}")
@@ -45,17 +43,15 @@ except Exception as e:
 
 @torch.no_grad()
 def generate_reply_streaming(user_input, history, max_new_tokens=1024, temperature=0.7, top_k=40):
-    """
-    一个生成器函数，逐 token 生成并流式输出回复。
-    """
+    
     model.eval()
 
-    # 1. 将用户的最新输入添加到历史记录中
+   
     history.append({"role": "user", "content": user_input})
-    # 2. 为即将生成的助手回复添加一个空的占位符
+    
     history.append({"role": "assistant", "content": ""})
 
-    # 立即 yield 一次，这样用户的输入会立刻显示在聊天窗口中
+    
     yield None, history
 
     # 3. 准备完整的 prompt 输入给模型
@@ -80,23 +76,23 @@ def generate_reply_streaming(user_input, history, max_new_tokens=1024, temperatu
         probs = torch.nn.functional.softmax(logits, dim=-1)
         next_id = torch.multinomial(probs, num_samples=1)
 
-        # 如果生成了结束符，就提前停止
+        
         if next_id.item() == config.eos_token_id:
             break
 
-        # 将新生成的 token id 添加到输出列表中
+       
         output_ids.append(next_id.item())
         
-        # 将当前所有已生成的 token 解码成字符串
+        
         assistant_reply_so_far = tokenizer.decode(output_ids)
 
-        # 更新历史记录中最后一个（也就是助手）的消息内容
+        
         history[-1]['content'] = assistant_reply_so_far
 
-        # 【关键】yield 更新后的历史记录，Gradio 会自动刷新 chatbot 界面
+        
         yield None, history
 
-        # 将新生成的 token 拼接到下一次的输入中，准备生成再下一个 token
+        
         input_ids = torch.cat([input_ids, next_id], dim=1)
 
 
@@ -111,7 +107,7 @@ with gr.Blocks(theme=gr.themes.Soft(), title="Etude") as demo:
     
     clear = gr.ClearButton([msg, chatbot], value="清空对话")
 
-    # 将提交动作绑定到新的流式生成函数
+    
     msg.submit(generate_reply_streaming, [msg, chatbot], [msg, chatbot])
 
 # 启动界面
