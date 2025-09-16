@@ -54,7 +54,7 @@ def generate_reply_streaming(user_input, history, max_new_tokens=1024, temperatu
     
     yield None, history
 
-    # 3. 准备完整的 prompt 输入给模型
+    # 准备完整的 prompt 输入给模型
     # 注意：我们只需要 history[:-1] 的内容，因为最后一个是空的占位符
     prompt_tokens = []
     for message in history[:-1]:
@@ -63,7 +63,7 @@ def generate_reply_streaming(user_input, history, max_new_tokens=1024, temperatu
 
     input_ids = torch.tensor([prompt_tokens], dtype=torch.long, device=device)
 
-    # 4. 【关键改动】逐 token 生成并在循环中 yield
+    
     output_ids = []
     for _ in range(max_new_tokens):
         logits, _ = model(input_ids)
