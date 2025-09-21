@@ -4,13 +4,17 @@
 
 Etude LLM是一个轻量级的语言模型实现项目，旨在提供一个可定制、可扩展的语言模型架构。该项目采用模块化设计，支持多种模型变体，包括标准Transformer结构和混合专家模型(MoE)。项目名称"Etude"（练习曲）寓意该项目既是语言模型实现的学习实践，也可作为更复杂模型架构的基础。
 
+
+![Etude](./img/Etude.gif)
+
+
+
 ## 项目结构
 
 ```
 Etude LLM/
 ├── inference/          # 模型推理代码
 │   ├── inference.py    # 基础推理实现
-│   ├── app.py          # GUI
 ├── model/              # 模型定义
 │   ├── model.py        # 基础模型架构 
 ├── tool/               # 数据处理工具
@@ -29,7 +33,7 @@ Etude LLM/
 │   └── xml/            # XML格式数据
 └── weight/             # 模型权重
     ├── full_sft_weight/ # 全量SFT模型权重
-    └── semanteme_weight/ # 语义模型权重
+    └── semanteme_weight/ # 语义模型权钟重
 ```
 
 ## 核心功能
@@ -49,12 +53,6 @@ Etude LLM实现了以下核心组件：
    - 路由器(MOERouter)：决定每个token应该由哪些专家处理
    - 稀疏MoE(SparseMOE)：支持每个token只通过部分专家进行处理
 
-4. **Tokenizer**:
-   - 使用tokenizers库分词
-    
-5. **GUI**
-   - 基于Gradio实现的UI  
-   
 
 ### 数据处理
 
@@ -92,6 +90,7 @@ Etude LLM实现了以下核心组件：
 - 支持更多模型架构变体
 - 扩展到多模态任务
 - 优化推理速度
+- 加入webUI
 - 重构代码
 
 ## 总结
@@ -100,9 +99,5 @@ Etude LLM实现了以下核心组件：
 - 虽然这个版本已经可以跑起来，但是很垃圾，训练速度极其慢。
 - moe我没过多测试，放在那就是意思意思的。
 - 原来那个v0.1压根没法正常对话，所以我没保留
-
-
-
-
 
 
