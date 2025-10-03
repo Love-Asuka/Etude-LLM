@@ -67,7 +67,7 @@ class EtudeHFConfig(PretrainedConfig):
         self.expert_number = expert_number
         self.top_k = top_k
 
-        # 派生属性
+
         self.head_size = self.n_embd // self.n_head
         
         # 混合注意力层类型

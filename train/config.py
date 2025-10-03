@@ -1,18 +1,13 @@
-# config.py
 import torch
 from dataclasses import dataclass, field
 from typing import List
 
 @dataclass
-class MOEConfig:
-    hidden_dim: int
-    expert_number: int
-    top_k: int
-
-@dataclass
 class TokenizerConfig:
     FILES_PATTERNS: List[str] = field(default_factory=lambda: [
         "training_data/pretrain/pretrain_hq.jsonl",
+        "training_data/sft/sft_mini_512.jsonl",
+        "training_data/dpo/dpo.jsonl"
     ])
     CACHE_FILE: str = "training_data/tokenizer_cache.txt"
     VOCAB_SIZE: int = 16384

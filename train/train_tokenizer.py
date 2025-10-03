@@ -1,4 +1,3 @@
-# train_tokenizer.py
 import os
 import json
 import argparse
@@ -16,7 +15,7 @@ import __init__
 from config import TokenizerConfig
 from data_utils import universal_text_iterator
 
-# ChatML模板保持不变
+
 ADVANCED_CHATML_TEMPLATE = (
     "{% if messages[0]['role'] == 'system' %}"
         "{% set loop_messages = messages[1:] %}"
@@ -61,8 +60,6 @@ def verify_config(cfg: TokenizerConfig) -> bool:
         print("\n[错误] 未找到任何训练数据文件！请检查 config.py 中的 FILES_PATTERNS。")
         return False
         
-    print("---------------------------------")
-    print("配置预检通过！")
     return True
 
 def train_the_one_tokenizer(cfg: TokenizerConfig):
@@ -117,7 +114,7 @@ def train_the_one_tokenizer(cfg: TokenizerConfig):
 
     print(f"所有Tokenizer配置文件已保存至: {cfg.TOKENIZER_DIR}")
 
-    # 步骤 5: 清理缓存
+
     os.remove(cfg.CACHE_FILE)
     print("已删除缓存文件。")
     print("\nTokenizer训练和配置全部完成！")
@@ -161,6 +158,9 @@ def verify_tokenizer(cfg: TokenizerConfig):
     except Exception as e:
         print(f"\n[错误] 验证失败: {e}")
 
+#其实我完全可以把验证删掉，因为我跑通了，但是我懒得删
+#而且万一哪天我改了配置文件又忘了改回来了呢
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Etude-LLM Tokenizer 训练和验证脚本")
     parser.add_argument(
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         type=str,
         choices=["config", "train", "verify", "all"],
         default="all",
-        nargs="?", # '?' 使参数变为可选，并使用 default 值
+        nargs="?", 
         help=(
             "执行的操作: "
             "'config' - 仅验证配置文件并退出; "

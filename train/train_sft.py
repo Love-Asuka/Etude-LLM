@@ -1,4 +1,3 @@
-# train_sft.py
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
@@ -11,8 +10,6 @@ import __init__
 from model.model import Etude, EtudeHFConfig
 from config import SFTConfig, DataConfig, TokenizerConfig
 from data_utils import StreamingDataset
-
-
 
 def sft_train() -> None:
     sft_cfg = SFTConfig()
