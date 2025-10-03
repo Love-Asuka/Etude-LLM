@@ -1,4 +1,3 @@
-# model.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -91,7 +90,6 @@ def rotate_half(x: torch.Tensor) -> torch.Tensor:
     return torch.cat((-x2, x1), dim=-1)
 
 def apply_rotary_pos_emb(q: torch.Tensor, k: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-    # cos, sin shape: (T, D_h)
     cos = cos.unsqueeze(0).unsqueeze(0)  # (1, 1, T, D_h)
     sin = sin.unsqueeze(0).unsqueeze(0)  # (1, 1, T, D_h)
     q_embed = (q * cos) + (rotate_half(q) * sin)

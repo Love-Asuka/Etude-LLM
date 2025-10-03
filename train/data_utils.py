@@ -100,7 +100,7 @@ class StreamingDataset(IterableDataset):
             
             if self.mode == 'sft':
                 yield from self._sft_iterator(worker_f)
-            else: # pretrain
+            else: 
                 yield from self._pretrain_iterator(worker_f)
 
     def _sft_iterator(self, file_iterator: Iterator[str]) -> Iterator[Tuple[torch.Tensor, torch.Tensor]]:

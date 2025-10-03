@@ -21,7 +21,7 @@ class TokenizerConfig:
 
 @dataclass
 class DataConfig:
-    pretrain_file: str = "training_data/pretrain/2021-43_zh_head_0000.jsonl"
+    pretrain_file: str = "training_data/pretrain/pretrain_hq.jsonl"
     sft_file: str = "training_data/sft/sft_mini_512.jsonl"
     block_size: int = 512
     text_buffer_size: int = 4000
