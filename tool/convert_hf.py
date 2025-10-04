@@ -11,11 +11,10 @@ def calculate_intermediate_size(n_embd: int, multiple_of: int = 256) -> int:
     return intermediate_size
 
 def convert_etude_to_llama(input_dir: str, output_dir: str):
-    print("--- Etude to Llama 伪装脚本 (V2 - 修正版) ---")
     print(f"源模型目录: {input_dir}")
     print(f"目标目录: {output_dir}\n")
 
-    # ... (步骤 1 和 2 保持不变) ...
+
     print("步骤 1: 加载原始 Etude 模型文件...")
     etude_config_path = os.path.join(input_dir, "config.json")
     etude_model_path = os.path.join(input_dir, "pytorch_model.bin")
@@ -27,7 +26,7 @@ def convert_etude_to_llama(input_dir: str, output_dir: str):
     etude_state_dict = torch.load(etude_model_path, map_location="cpu")
     print("原始文件加载成功。\n")
 
-    print("步骤 2: 转换模型配置 (config.json)...")
+
     n_embd = etude_config["n_embd"]
     n_layer = etude_config["n_layer"]
     n_head = etude_config["n_head"]
@@ -53,8 +52,8 @@ def convert_etude_to_llama(input_dir: str, output_dir: str):
     }
     print("配置转换完成。\n")
 
-    # ... (步骤 3 保持不变) ...
-    print("步骤 3: 转换模型权重 (state dict)...")
+
+    print("转换模型权重 (state dict)...")
     llama_state_dict = OrderedDict()
     llama_state_dict["model.embed_tokens.weight"] = etude_state_dict["token_embedding.weight"]
     for i in range(n_layer):
@@ -74,7 +73,7 @@ def convert_etude_to_llama(input_dir: str, output_dir: str):
     print("权重转换完成。\n")
     
     # --- 4. 验证与保存 (已修正) ---
-    print("步骤 4: 验证并保存转换后的模型...")
+    print("验证并保存转换后的模型...")
     total_etude_params = sum(p.numel() for p in etude_state_dict.values())
     total_llama_params = sum(p.numel() for p in llama_state_dict.values())
     if total_etude_params != total_llama_params:
@@ -84,35 +83,30 @@ def convert_etude_to_llama(input_dir: str, output_dir: str):
 
     os.makedirs(output_dir, exist_ok=True)
     
-    # ↓↓↓ --- 这是核心修正 --- ↓↓↓
+
     print("正在复制所有辅助文件 (tokenizer configs, templates, etc.)...")
     for filename in os.listdir(input_dir):
-        # 我们要生成新的权重和配置，所以跳过它们，复制其他所有文件
+
         if filename not in ["pytorch_model.bin", "config.json"]:
             source_file = os.path.join(input_dir, filename)
             dest_file = os.path.join(output_dir, filename)
             if os.path.isfile(source_file):
                 shutil.copy2(source_file, dest_file)
     print("辅助文件复制完成。")
-    # ↑↑↑ --- 修正结束 --- ↑↑↑
 
-    # 保存新的 Llama 配置文件 (这将覆盖任何已复制的 config.json)
     with open(os.path.join(output_dir, "config.json"), 'w', encoding='utf-8') as f:
         json.dump(llama_config, f, indent=2, ensure_ascii=False)
 
-    # 保存新的 Llama 权重文件
+
     torch.save(llama_state_dict, os.path.join(output_dir, "pytorch_model.bin"))
     
     print("\n--- 转换成功！ ---")
     print(f"Llama 兼容模型已保存至: {output_dir}")
 
-# ... (主函数入口 __main__ 保持不变) ...
+
 if __name__ == "__main__":
     input_path = "weight/etude_sft_model/"
     output_path = "weight/etude_sft_model_llama_format/"
-
-    # 直接用定义好的路径调用函数
-    print(f"注意：正在使用脚本内硬编码的路径！")
     print(f"输入: {input_path}")
     print(f"输出: {output_path}")
     convert_etude_to_llama(input_path, output_path)
