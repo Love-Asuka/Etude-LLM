@@ -72,7 +72,6 @@ def convert_etude_to_llama(input_dir: str, output_dir: str):
     llama_state_dict["lm_head.weight"] = etude_state_dict["lm_head.weight"]
     print("权重转换完成。\n")
     
-    # --- 4. 验证与保存 (已修正) ---
     print("验证并保存转换后的模型...")
     total_etude_params = sum(p.numel() for p in etude_state_dict.values())
     total_llama_params = sum(p.numel() for p in llama_state_dict.values())

@@ -47,7 +47,6 @@ def clean_wiki_text(text):
     return '\n'.join(lines)
 
 def process_single_xml(input_path, output_path):
-
     # 支持bz2压缩文件直接读取
     if input_path.endswith('.bz2'):
         open_func = bz2.open

@@ -22,7 +22,7 @@ def get_pair_count():
         initialvalue=1000
     )
     root.destroy()
-    return count or 1000  # 默认值1000
+    return count or 1000  
 
 def process_json_file(input_path, output_folder, texts_per_file):
 
@@ -69,8 +69,7 @@ def main():
     if not output_folder:
         print("未选择输出文件夹，程序退出")
         return
-    
-    # 获取用户设置的文本数量
+
     texts_per_file = get_pair_count()
     print(f"每个输出文件将包含 {texts_per_file} 个文本")
     

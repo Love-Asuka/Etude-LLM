@@ -60,7 +60,6 @@ def chat():
             if not user_input:
                 continue
             if user_input.lower() in ["quit", "exit"]:
-                print("再见！")
                 break
             if user_input.lower() == "clear":
                 messages.clear()
@@ -73,7 +72,6 @@ def chat():
             messages.append({"role": "assistant", "content": response})
 
         except KeyboardInterrupt:
-            print("\n再见！")
             break
 
 if __name__ == "__main__":

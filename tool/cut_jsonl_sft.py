@@ -22,7 +22,7 @@ def get_pair_count():
         initialvalue=1000
     )
     root.destroy()
-    return count or 1000  # 默认值1000
+    return count or 1000 
 
 def process_json_file(input_path, output_folder, conversations_per_file):
 
@@ -53,7 +53,6 @@ def process_json_file(input_path, output_folder, conversations_per_file):
                     output_file = open(output_path, 'w', encoding='utf-8')
                     file_index += 1
                 
-                # 写入对话数据
                 output_file.write(
                     json.dumps({"conversations": conversations}, ensure_ascii=False) + '\n'
                 )
@@ -80,7 +79,6 @@ def main():
         print("未选择输出文件夹，程序退出")
         return
     
-    # 获取用户设置的对话数量
     dialogues_per_file = get_pair_count()
     print(f"每个输出文件将包含 {dialogues_per_file} 个完整对话")
     
