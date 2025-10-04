@@ -21,7 +21,7 @@
 
 Etude LLM is a lightweight language model implementation project designed to provide a customizable and extensible language model architecture. The project adopts a modular design and supports standard Transformer structures. The project name "Etude" (Etude) symbolizes that this project is both a learning practice for language model implementation and can serve as a foundation for more complex model architectures.
 
-**Hugging Face Model Page**: https://huggingface.co/Etude-AI/Etude-LLMv0.2
+
 
 ![Etude](./img/Etude.gif)
 
