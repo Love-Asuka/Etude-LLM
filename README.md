@@ -15,6 +15,7 @@ Etude LLM是一个轻量级的语言模型实现项目，旨在提供一个可�
 Etude LLM/
 ├── inference/              # 模型推理代码
 │   ├── __init__.py
+│   ├── hf.py               # Hugging Face兼容推理实现
 │   ├── inference.py        # 基础推理实现
 │   └── inference_laRA.py   # LoRA推理实现
 ├── model/                  # 模型定义
@@ -22,6 +23,7 @@ Etude LLM/
 │   ├── model.py            # 基础模型架构
 │   └── model_loRA.py       # LoRA模型架构
 ├── tool/                   # 数据处理工具
+│   ├── convert_hf.py       # Etude到Hugging Face格式转换工具
 │   ├── cut_json.py         # JSON数据处理
 │   ├── cut_jsonl.py        # JSONL数据处理
 │   ├── cut_jsonl_sft.py    # SFT数据格式处理
@@ -146,6 +148,44 @@ python train_sft.py
 - 自动检测检查点文件
 - 恢复优化器状态和训练进度
 - 支持从预训练模型继续SFT训练
+
+### 模型推理
+
+训练完成后，可以使用推理脚本进行模型推理：
+
+```bash
+cd inference
+python inference.py
+```
+
+该脚本会直接从保存的模型配置文件中加载模型，无需依赖训练时的配置类。
+
+或者使用Lora版推理脚本：
+
+```bash
+cd inference
+python inference_laRA.py
+```
+
+此外，项目还提供了Hugging Face兼容的推理脚本：
+
+```bash
+cd inference
+python hf.py
+```
+
+该脚本使用Hugging Face Transformers库加载模型，支持流式输出和聊天模板。
+
+### Hugging Face格式转换
+
+项目提供了一个工具脚本，可以将训练好的Etude模型转换为Hugging Face兼容的格式：
+
+```bash
+cd tool
+python convert_hf.py
+```
+
+该脚本会将Etude模型权重和配置转换为Llama格式，使得模型可以与Hugging Face生态系统兼容。
 
 ## 技术特点
 

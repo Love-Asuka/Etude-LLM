@@ -2,7 +2,6 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from typing import List, Dict
 
-
 import __init__
 from model.model import Etude, EtudeHFConfig 
 from train.config import SFTConfig

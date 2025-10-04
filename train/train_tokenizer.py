@@ -65,13 +65,12 @@ def verify_config(cfg: TokenizerConfig) -> bool:
 def train_the_one_tokenizer(cfg: TokenizerConfig):
     print("\n--- 开始训练 Tokenizer ---")
     
-
     print(f"创建缓存文件: {cfg.CACHE_FILE}")
     os.makedirs(os.path.dirname(cfg.CACHE_FILE), exist_ok=True)
     with open(cfg.CACHE_FILE, 'w', encoding='utf-8') as f:
         for text in universal_text_iterator(cfg.FILES_PATTERNS):
             if text and text.strip(): f.write(text.strip() + '\n')
-    print("缓存文件创建完成。")
+
 
     tokenizer = Tokenizer(models.BPE(unk_token="<|endoftext|>"))
     tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)
@@ -92,7 +91,6 @@ def train_the_one_tokenizer(cfg: TokenizerConfig):
     tokenizer.save(cfg.TOKENIZER_FILE)
     print(f"核心分词器已保存至: {cfg.TOKENIZER_FILE}")
     
-
     print("正在创建Hugging Face兼容配置文件...")
     endoftext_token, im_start_token, im_end_token = cfg.SPECIAL_TOKENS
     

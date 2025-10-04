@@ -5,6 +5,7 @@ from typing import Optional, Tuple, List
 from transformers import PretrainedConfig, PreTrainedModel
 from transformers.modeling_outputs import CausalLMOutputWithPast
 
+
 class EtudeHFConfig(PretrainedConfig):
     model_type = "etude"
 
