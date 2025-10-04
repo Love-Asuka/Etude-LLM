@@ -59,13 +59,8 @@ def process_single_xml(input_path, output_path):
     with open_func(input_path, open_mode) as infile, \
          open(output_path, 'w', encoding='utf-8') as outfile:
         
-
-        parser = etree.XMLParser(recover=True)
-        
-
         context = etree.iterparse(infile, events=('end',), tag='{*}page')
         
-
         for event, elem in tqdm(context, desc=f"处理 {os.path.basename(input_path)}"):
 
             ns = elem.findtext('{*}ns', default='')
@@ -86,7 +81,6 @@ def process_single_xml(input_path, output_path):
                     outfile.write(cleaned + "\n\n")
                     page_count += 1
             
-            # 关键：清理内存
             elem.clear()
 
             while elem.getprevious() is not None:
@@ -95,7 +89,6 @@ def process_single_xml(input_path, output_path):
     return page_count
 
 def process_xml_files(input_dir, output_dir):
-    """处理目录中的所有XML文件"""
     os.makedirs(output_dir, exist_ok=True)
     
     # 支持.xml和.xml.bz2文件
