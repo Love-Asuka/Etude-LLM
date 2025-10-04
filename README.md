@@ -1,216 +1,235 @@
 # Etude LLMv0.2
 
-## 项目简介
+<p align="center">
+  <a href="https://huggingface.co/Etude-AI/Etude-LLMv0.2">
+    <img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="Hugging Face">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+  </a>
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python">
+  </a>
+  <a href="https://pytorch.org/">
+    <img src="https://img.shields.io/badge/PyTorch-2.0%2B-red" alt="PyTorch">
+  </a>
+</p>
 
-Etude LLM是一个轻量级的语言模型实现项目，旨在提供一个可定制、可扩展的语言模型架构。该项目采用模块化设计，支持标准Transformer结构。项目名称"Etude"（练习曲）寓意该项目既是语言模型实现的学习实践，也可作为更复杂模型架构的基础。
+> **注意**: 本文档为机器翻译版本。如需查看原始中文文档，请访问 [README_CN.md](README_CN.md)
 
+## Project Overview
+
+Etude LLM is a lightweight language model implementation project designed to provide a customizable and extensible language model architecture. The project adopts a modular design and supports standard Transformer structures. The project name "Etude" (Etude) symbolizes that this project is both a learning practice for language model implementation and can serve as a foundation for more complex model architectures.
+
+**Hugging Face Model Page**: https://huggingface.co/Etude-AI/Etude-LLMv0.2
 
 ![Etude](./img/Etude.gif)
 
-
-
-## 项目结构
+## Project Structure
 
 ```
 Etude LLM/
-├── inference/              # 模型推理代码
+├── inference/              # Model inference code
 │   ├── __init__.py
-│   ├── hf.py               # Hugging Face兼容推理实现
-│   ├── inference.py        # 基础推理实现
-│   └── inference_laRA.py   # LoRA推理实现
-├── model/                  # 模型定义
+│   ├── hf.py               # Hugging Face compatible inference implementation
+│   ├── inference.py        # Basic inference implementation
+│   └── inference_laRA.py   # LoRA inference implementation
+├── model/                  # Model definitions
 │   ├── __init__.py
-│   ├── model.py            # 基础模型架构
-│   └── model_loRA.py       # LoRA模型架构
-├── tool/                   # 数据处理工具
-│   ├── convert_hf.py       # Etude到Hugging Face格式转换工具
-│   ├── cut_json.py         # JSON数据处理
-│   ├── cut_jsonl.py        # JSONL数据处理
-│   ├── cut_jsonl_sft.py    # SFT数据格式处理
-│   ├── cut_txt.py          # 文本切分工具
-│   └── extract_xml.py      # XML数据提取工具
-├── train/                  # 训练相关代码
+│   ├── model.py            # Basic model architecture
+│   └── model_loRA.py       # LoRA model architecture
+├── tool/                   # Data processing tools
+│   ├── convert_hf.py       # Etude to Hugging Face format conversion tool
+│   ├── cut_json.py         # JSON data processing
+│   ├── cut_jsonl.py        # JSONL data processing
+│   ├── cut_jsonl_sft.py    # SFT data format processing
+│   ├── cut_txt.py          # Text splitting tool
+│   └── extract_xml.py      # XML data extraction tool
+├── train/                  # Training related code
 │   ├── __init__.py
-│   ├── config.py           # 训练配置
-│   ├── data_utils.py       # 数据工具函数
-│   ├── train_pretrain.py   # 预训练实现
-│   ├── train_sft.py        # SFT训练实现
-│   └── train_tokenizer.py  # 训练分词器
-├── img/                    # 图片资源
+│   ├── config.py           # Training configuration
+│   ├── data_utils.py       # Data utility functions
+│   ├── train_pretrain.py   # Pretraining implementation
+│   ├── train_sft.py        # SFT training implementation
+│   └── train_tokenizer.py  # Tokenizer training
+├── img/                    # Image resources
 │   └── Etude.gif
-├── training_data/          # 训练数据（被.gitignore排除）
-└── weight/                 # 模型权重（被.gitignore排除）
+├── training_data/          # Training data (excluded by .gitignore)
+└── weight/                 # Model weights (excluded by .gitignore)
 ```
 
-## 核心功能
+## Core Features
 
-### 模型架构
+### Model Architecture
 
-Etude LLM实现了以下核心组件：
+Etude LLM implements the following core components:
 
-1. **注意力机制**：
-   - 多头注意力(MultiHeadAttention)
+1. **Attention Mechanism**:
+   - Multi-Head Attention (MultiHeadAttention)
 
-2. **Transformer块**：
-   - 标准前馈网络(FeedForward)
+2. **Transformer Blocks**:
+   - Standard Feed-Forward Network (FeedForward)
 
+### Data Processing
 
-### 数据处理
+The project provides various data processing tools:
 
-项目提供多种数据处理工具：
+- **XML Processing**: Extract and clean text from XML format data such as Wikipedia
+- **Text Splitting**: Split large text files into training samples
+- **JSONL Processing**: Process JSON format training data
 
-- **XML处理**：从维基百科等XML格式数据中提取和清洗文本
-- **文本切分**：将大型文本文件切分为训练样本
-- **JSONL处理**：处理JSON格式的训练数据
+### Training Methods
 
-### 训练方法
+Supports multiple training paradigms:
 
-支持多种训练范式：
+- **Pretraining**: Basic language model training
+- **Supervised Fine-Tuning (SFT)**: Instruction fine-tuning training
+- **Tokenizer Training**: Custom tokenizer training
 
-- **预训练(Pretraining)**：基础语言模型训练
-- **监督微调(SFT)**：指令微调训练
-- **分词器训练**：自定义分词器训练
+## Quick Start
 
-## 快速开始
+### Training Process Overview
 
-### 训练流程概述
+The Etude LLM training process consists of three main steps:
 
-Etude LLM的训练流程分为三个主要步骤：
+1. **Tokenizer Training** - Create custom tokenizer
+2. **Pretraining** - Basic language model training
+3. **Supervised Fine-Tuning (SFT)** - Instruction fine-tuning training
 
-1. **分词器训练** - 创建自定义分词器
-2. **预训练** - 基础语言模型训练
-3. **监督微调(SFT)** - 指令微调训练
+### Detailed Training Steps
 
-### 详细训练步骤
+#### 1. Tokenizer Training
 
-#### 1. 分词器训练
-
-首先训练自定义分词器：
+First, train a custom tokenizer:
 
 ```bash
 cd train
 python train_tokenizer.py all
 ```
 
-这将：
-- 验证配置文件
-- 训练BPE分词器
-- 创建Hugging Face兼容的分词器配置
-- 验证分词器功能
+This will:
+- Validate configuration files
+- Train BPE tokenizer
+- Create Hugging Face compatible tokenizer configuration
+- Validate tokenizer functionality
 
-#### 2. 预训练
+#### 2. Pretraining
 
-进行基础语言模型预训练：
+Perform basic language model pretraining:
 
 ```bash
 cd train
 python train_pretrain.py
 ```
 
-配置参数（可在`config.py`中调整）：
-- 批量大小：16
-- 学习率：3e-4
-- 训练轮数：3
-- 设备：自动检测CUDA/CPU
+Configuration parameters (can be adjusted in `config.py`):
+- Batch size: 16
+- Learning rate: 3e-4
+- Training epochs: 3
+- Device: Auto-detect CUDA/CPU
 
-#### 3. 监督微调(SFT)
+#### 3. Supervised Fine-Tuning (SFT)
 
-在预训练模型基础上进行指令微调：
+Perform instruction fine-tuning on the pretrained model:
 
 ```bash
 cd train
 python train_sft.py
 ```
 
-配置参数：
-- 批量大小：8
-- 学习率：3e-5
-- 训练轮数：3
+Configuration parameters:
+- Batch size: 8
+- Learning rate: 3e-5
+- Training epochs: 3
 
-### 数据准备
-训练数据应放置在以下目录：
+### Data Preparation
 
-示例：
+Training data should be placed in the following directories:
 
-- 预训练数据：`training_data/pretrain/pretrain_hq.jsonl`
-- SFT数据：`training_data/sft/sft_mini_512.jsonl`
+Examples:
 
-### 模型保存
+- Pretraining data: `training_data/pretrain/pretrain_hq.jsonl`
+- SFT data: `training_data/sft/sft_mini_512.jsonl`
 
-训练完成后，模型将保存在：
-- 预训练模型：`weight/etude_pretrained_model/`
-- SFT模型：`weight/etude_sft_model/`
-- 分词器：`weight/tokenizer/`
+### Model Saving
 
-### 恢复训练
+After training completion, models will be saved in:
+- Pretrained model: `weight/etude_pretrained_model/`
+- SFT model: `weight/etude_sft_model/`
+- Tokenizer: `weight/tokenizer/`
 
-所有训练脚本支持断点续训：
-- 自动检测检查点文件
-- 恢复优化器状态和训练进度
-- 支持从预训练模型继续SFT训练
+### Resume Training
 
-### 模型推理
+All training scripts support checkpoint resumption:
+- Automatically detect checkpoint files
+- Restore optimizer state and training progress
+- Support continuing SFT training from pretrained models
 
-训练完成后，可以使用推理脚本进行模型推理：
+### Model Inference
+
+After training completion, you can use inference scripts for model inference:
 
 ```bash
 cd inference
 python inference.py
 ```
 
-该脚本会直接从保存的模型配置文件中加载模型，无需依赖训练时的配置类。
+This script will load the model directly from the saved model configuration files without relying on training configuration classes.
 
-或者使用Lora版推理脚本：
+Or use the Lora version inference script:
 
 ```bash
 cd inference
 python inference_laRA.py
 ```
 
-此外，项目还提供了Hugging Face兼容的推理脚本：
+Additionally, the project provides Hugging Face compatible inference scripts:
 
 ```bash
 cd inference
 python hf.py
 ```
 
-该脚本使用Hugging Face Transformers库加载模型，支持流式输出和聊天模板。
+This script uses the Hugging Face Transformers library to load the model and supports streaming output and chat templates.
 
-### Hugging Face格式转换
+### Hugging Face Format Conversion
 
-项目提供了一个工具脚本，可以将训练好的Etude模型转换为Hugging Face兼容的格式：
+The project provides a tool script to convert trained Etude models to Hugging Face compatible format:
 
 ```bash
 cd tool
 python convert_hf.py
 ```
 
-该脚本会将Etude模型权重和配置转换为Llama格式，使得模型可以与Hugging Face生态系统兼容。
+This script will convert Etude model weights and configurations to Llama format, making the model compatible with the Hugging Face ecosystem.
 
-## 技术特点
+## Technical Features
 
-1. **模块化设计**：各组件高度解耦，便于扩展和实验
-2. **灵活配置**：通过`EtudeConfig`类提供统一的配置接口
+1. **Modular Design**: Highly decoupled components for easy extension and experimentation
+2. **Flexible Configuration**: Unified configuration interface through `EtudeConfig` class
 
+## Use Cases
 
-## 使用场景
+- Language model research and experimentation
+- Text generation applications
+- Natural language processing tasks
+- Starting point for more complex model development
 
-- 语言模型研究与实验
-- 文本生成应用
-- 自然语言处理任务
-- 作为更复杂模型开发的起点
+## Future Development
 
-## 未来发展
+- Support for more model architecture variants
+- Expansion to multimodal tasks
+- Inference speed optimization
+- Code refactoring
 
-- 支持更多模型架构变体
-- 扩展到多模态任务
-- 优化推理速度
-- 重构代码
+## Summary
 
-## 总结
+- Compared to the previous GPT-2 replication, this version is much better, but still needs significant improvement. Future versions will include code refactoring.
+- Although this version can run, the training speed is extremely slow.
+- The original v0.1 version could not engage in normal conversation, so it was not preserved.
 
-- 相比之前的复刻gpt2，这个要好很多，但仍然极其稀烂，未来我将会重构代码。
-- 虽然这个版本已经可以跑起来，但是很垃圾，训练速度极其慢。
-- 原来那个v0.1压根没法正常对话，所以我没保留
+---
+
+**原始中文文档请参考：[README_CN.md](README_CN.md)**
 
 
