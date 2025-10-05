@@ -67,7 +67,6 @@ def chat():
                 continue
 
             messages.append({"role": "user", "content": user_input})
-
             response = stream_reply(model, tokenizer, messages)
             messages.append({"role": "assistant", "content": response})
 

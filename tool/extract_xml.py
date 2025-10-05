@@ -36,7 +36,6 @@ def clean_wiki_text(text):
         text
     )
     
-
     text = re.sub(r'[ \t\r\f\v]+', ' ', text)  
     text = re.sub(r'( ?\n ?)+', '\n', text)     
     

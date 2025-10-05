@@ -68,7 +68,7 @@ def generate_reply_with_cache(
     device: str,
     max_new_tokens: int = 1024, 
     temperature: float = 0.7, 
-    top_p: float = 20,
+    top_p: float = 0.95,
 ) -> str:
 
     prompt_ids = tokenizer.apply_chat_template(

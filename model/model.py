@@ -11,7 +11,6 @@ class EtudeHFConfig(PretrainedConfig):
 
     def __init__(
         self,
-
         vocab_size: int = 16384,
         n_layer: int = 6,
         n_head: int = 4,
@@ -31,9 +30,7 @@ class EtudeHFConfig(PretrainedConfig):
         self.n_embd = n_embd
         self.dropout = dropout
 
-
         self.head_size = self.n_embd // self.n_head
-
 
         super().__init__(
             tie_word_embeddings=tie_word_embeddings,
@@ -43,16 +40,13 @@ class EtudeHFConfig(PretrainedConfig):
         )
 
 
-
 class RMSNorm(nn.Module):
     def __init__(self, dim: int, eps: float = 1e-6):
         super().__init__()
         self.eps = eps
         self.weight = nn.Parameter(torch.ones(dim))
-
     def _norm(self, x: torch.Tensor) -> torch.Tensor:
         return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         output_dtype = x.dtype
         return (self._norm(x.float()) * self.weight).to(output_dtype)
@@ -131,7 +125,6 @@ class MultiHeadAttention(nn.Module):
 
         present_key_value = (k, v) if use_cache else None
         
-
         is_causal = attention_mask is None
 
         out = F.scaled_dot_product_attention(
@@ -218,8 +211,7 @@ class Etude(PreTrainedModel):
             pad_token_id = self.config.pad_token_id
             
         generated_tokens = input_ids.clone()
-        
-
+    
         unfinished_sequences = torch.ones(batch_size, dtype=torch.long, device=device)
         
 
@@ -242,14 +234,9 @@ class Etude(PreTrainedModel):
             if do_sample and top_p < 1.0:
                 sorted_logits, sorted_indices = torch.sort(next_token_logits, descending=True)
                 cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
-                
-     
                 sorted_indices_to_remove = cumulative_probs > top_p
-      
                 sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
                 sorted_indices_to_remove[..., 0] = 0
-                
-    
                 indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
                 next_token_logits = next_token_logits.masked_fill(indices_to_remove, -float("Inf"))
             
