@@ -13,6 +13,9 @@
   <a href="https://pytorch.org/">
     <img src="https://img.shields.io/badge/PyTorch-2.0%2B-red" alt="PyTorch">
   </a>
+  <a href="https://huggingface.co/transformers/">
+    <img src="https://img.shields.io/badge/🤗-Transformers-yellow" alt="Transformers">
+  </a>
 </p>
 
 > **注意**: 本文档为机器翻译版本。如需查看原始中文文档，请访问 [README_CN.md](README_CN.md)
