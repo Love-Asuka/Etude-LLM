@@ -1,6 +1,6 @@
 # Etude LLMv0.2
 
-[![GitHub Code License](https://img.shields.io/github/license/Etude-AI/Etude-LLM)](LICENSE)
+[![GitHub Code License](https://img.shields.io/github/license/Love-Asuka/Etude-LLM)](LICENSE)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/Etude-AI/Etude-LLMv0.2)
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![PyTorch](https://img.shields.io/badge/pytorch-2.0%2B-red)
