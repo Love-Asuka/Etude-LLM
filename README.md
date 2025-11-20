@@ -28,39 +28,6 @@ Etude LLM is a lightweight language model implementation project designed to pro
 
 ![Etude](./img/Etude.gif)
 
-## Project Structure
-
-```
-Etude LLM/
-├── inference/              # Model inference code
-│   ├── __init__.py
-│   ├── hf.py               # Hugging Face compatible inference implementation
-│   ├── inference.py        # Basic inference implementation
-│   └── inference_laRA.py   # LoRA inference implementation
-├── model/                  # Model definitions
-│   ├── __init__.py
-│   ├── model.py            # Basic model architecture
-│   └── model_loRA.py       # LoRA model architecture
-├── tool/                   # Data processing tools
-│   ├── convert_hf.py       # Etude to Hugging Face format conversion tool
-│   ├── cut_json.py         # JSON data processing
-│   ├── cut_jsonl.py        # JSONL data processing
-│   ├── cut_jsonl_sft.py    # SFT data format processing
-│   ├── cut_txt.py          # Text splitting tool
-│   └── extract_xml.py      # XML data extraction tool
-├── train/                  # Training related code
-│   ├── __init__.py
-│   ├── config.py           # Training configuration
-│   ├── data_utils.py       # Data utility functions
-│   ├── train_pretrain.py   # Pretraining implementation
-│   ├── train_sft.py        # SFT training implementation
-│   └── train_tokenizer.py  # Tokenizer training
-├── img/                    # Image resources
-│   └── Etude.gif
-├── training_data/          # Training data (excluded by .gitignore)
-└── weight/                 # Model weights (excluded by .gitignore)
-```
-
 ## Core Features
 
 ### Model Architecture
@@ -179,13 +146,6 @@ python inference.py
 
 This script will load the model directly from the saved model configuration files without relying on training configuration classes.
 
-Or use the Lora version inference script:
-
-```bash
-cd inference
-python inference_laRA.py
-```
-
 Additionally, the project provides Hugging Face compatible inference scripts:
 
 ```bash
@@ -234,5 +194,3 @@ This script will convert Etude model weights and configurations to Llama format,
 ---
 
 **原始中文文档请参考：[README_CN.md](README_CN.md)**
-
-
