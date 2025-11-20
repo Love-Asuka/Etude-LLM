@@ -1,19 +1,19 @@
 # Etude LLMv0.2
 
 <p align="center">
-  <a href="https://huggingface.co/Etude-AI/Etude-LLMv0.2">
+  <a href="https://huggingface.co/Etude-AI/Etude-LLMv0.2" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="Hugging Face">
   </a>
-  <a href="LICENSE">
+  <a href="LICENSE" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
   </a>
-  <a href="https://www.python.org/">
+  <a href="https://www.python.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python">
   </a>
-  <a href="https://pytorch.org/">
+  <a href="https://pytorch.org/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/PyTorch-2.0%2B-red" alt="PyTorch">
   </a>
-  <a href="https://huggingface.co/transformers/">
+  <a href="https://huggingface.co/transformers/" style="text-decoration: none;">
     <img src="https://img.shields.io/badge/🤗-Transformers-yellow" alt="Transformers">
   </a>
 </p>
