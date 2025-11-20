@@ -1,11 +1,9 @@
 # Etude LLMv0.2
 
-![visitors](https://visitor-badge.laobi.icu/badge?page_id=Etude-AI/Etude-LLM)
-[![GitHub Repo stars](https://img.shields.io/github/stars/Etude-AI/Etude-LLM?style=social)](https://github.com/Etude-AI/Etude-LLM/stargazers)
 [![GitHub Code License](https://img.shields.io/github/license/Etude-AI/Etude-LLM)](LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/Etude-AI/Etude-LLM)](https://github.com/Etude-AI/Etude-LLM/commits/main)
-[![GitHub pull request](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/Etude-AI/Etude-LLM/pulls)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/Etude-AI/Etude-LLMv0.2)
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![PyTorch](https://img.shields.io/badge/pytorch-2.0%2B-red)
 
 > **注意**: 本文档为机器翻译版本。如需查看原始中文文档，请访问 [README_CN.md](README_CN.md)
 
