@@ -1,22 +1,11 @@
 # Etude LLMv0.2
 
-<p align="center">
-  <a href="https://huggingface.co/Etude-AI/Etude-LLMv0.2" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="Hugging Face">
-  </a>
-  <a href="LICENSE" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  </a>
-  <a href="https://www.python.org/" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python">
-  </a>
-  <a href="https://pytorch.org/" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/PyTorch-2.0%2B-red" alt="PyTorch">
-  </a>
-  <a href="https://huggingface.co/transformers/" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/🤗-Transformers-yellow" alt="Transformers">
-  </a>
-</p>
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=Etude-AI/Etude-LLM)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Etude-AI/Etude-LLM?style=social)](https://github.com/Etude-AI/Etude-LLM/stargazers)
+[![GitHub Code License](https://img.shields.io/github/license/Etude-AI/Etude-LLM)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Etude-AI/Etude-LLM)](https://github.com/Etude-AI/Etude-LLM/commits/main)
+[![GitHub pull request](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/Etude-AI/Etude-LLM/pulls)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/Etude-AI/Etude-LLMv0.2)
 
 > **注意**: 本文档为机器翻译版本。如需查看原始中文文档，请访问 [README_CN.md](README_CN.md)
 
@@ -39,14 +28,6 @@ Etude LLM implements the following core components:
 
 2. **Transformer Blocks**:
    - Standard Feed-Forward Network (FeedForward)
-
-### Data Processing
-
-The project provides various data processing tools:
-
-- **XML Processing**: Extract and clean text from XML format data such as Wikipedia
-- **Text Splitting**: Split large text files into training samples
-- **JSONL Processing**: Process JSON format training data
 
 ### Training Methods
 
@@ -111,15 +92,6 @@ Configuration parameters:
 - Batch size: 8
 - Learning rate: 3e-5
 - Training epochs: 3
-
-### Data Preparation
-
-Training data should be placed in the following directories:
-
-Examples:
-
-- Pretraining data: `training_data/pretrain/pretrain_hq.jsonl`
-- SFT data: `training_data/sft/sft_mini_512.jsonl`
 
 ### Model Saving
 

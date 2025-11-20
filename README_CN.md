@@ -1,19 +1,11 @@
 # Etude LLMv0.2
 
-<p align="center">
-  <a href="https://huggingface.co/Etude-AI/Etude-LLMv0.2" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue" alt="Hugging Face">
-  </a>
-  <a href="LICENSE" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-  </a>
-  <a href="https://www.python.org/" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python">
-  </a>
-  <a href="https://pytorch.org/" style="text-decoration: none;">
-    <img src="https://img.shields.io/badge/PyTorch-2.0%2B-red" alt="PyTorch">
-  </a>
-</p>
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=Etude-AI/Etude-LLM)
+[![GitHub Repo stars](https://img.shields.io/github/stars/Etude-AI/Etude-LLM?style=social)](https://github.com/Etude-AI/Etude-LLM/stargazers)
+[![GitHub Code License](https://img.shields.io/github/license/Etude-AI/Etude-LLM)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/Etude-AI/Etude-LLM)](https://github.com/Etude-AI/Etude-LLM/commits/main)
+[![GitHub pull request](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/Etude-AI/Etude-LLM/pulls)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue)](https://huggingface.co/Etude-AI/Etude-LLMv0.2)
 
 ## 项目简介
 
@@ -34,14 +26,6 @@ Etude LLM实现了以下核心组件：
 
 2. **Transformer块**：
    - 标准前馈网络(FeedForward)
-
-### 数据处理
-
-项目提供多种数据处理工具：
-
-- **XML处理**：从维基百科等XML格式数据中提取和清洗文本
-- **文本切分**：将大型文本文件切分为训练样本
-- **JSONL处理**：处理JSON格式的训练数据
 
 ### 训练方法
 
@@ -106,14 +90,6 @@ python train_sft.py
 - 批量大小：8
 - 学习率：3e-5
 - 训练轮数：3
-
-### 数据准备
-训练数据应放置在以下目录：
-
-示例：
-
-- 预训练数据：`training_data/pretrain/pretrain_hq.jsonl`
-- SFT数据：`training_data/sft/sft_mini_512.jsonl`
 
 ### 模型保存
 
