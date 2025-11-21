@@ -39,6 +39,7 @@ ADVANCED_CHATML_TEMPLATE = (
     "{% endif %}"
 )
 
+
 def verify_config(cfg: TokenizerConfig) -> bool:
 
     print("--- 正在验证 Tokenizer 配置 ---")
