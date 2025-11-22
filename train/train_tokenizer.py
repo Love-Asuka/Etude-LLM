@@ -15,7 +15,6 @@ import __init__
 from config import TokenizerConfig
 from data_utils import universal_text_iterator
 
-
 ADVANCED_CHATML_TEMPLATE = (
     "{% if messages[0]['role'] == 'system' %}"
         "{% set loop_messages = messages[1:] %}"
