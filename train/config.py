@@ -31,7 +31,7 @@ class TrainingConfig:
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
     num_workers: int = 16
     epochs: int = 3
-    accumulation_steps: int = 1
+    accumulation_steps: int = 4
     print_every: int = 100
     save_every: int = 5000
 
