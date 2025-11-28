@@ -1,7 +1,7 @@
 weight/
 
 
-# Training data
+#Training data
 training_data/
 *.jsonl
 *.json
