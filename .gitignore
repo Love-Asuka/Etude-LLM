@@ -18,4 +18,4 @@ weight/
 
 hugging face/
 
-train/test_tokenizer.py
+test_unit/
