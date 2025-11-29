@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Optional, Tuple, List
-from transformers import PretrainedConfig, PreTrainedModel
+from transformers import PretrainedConfig, PreTrainedModel, GenerationMixin
 from transformers.modeling_outputs import CausalLMOutputWithPast
+from transformers.cache_utils import Cache, DynamicCache
 
 
 class EtudeHFConfig(PretrainedConfig):
@@ -20,6 +21,7 @@ class EtudeHFConfig(PretrainedConfig):
         tie_word_embeddings: bool = True,
         eos_token_id: int = 0,
         pad_token_id: int = 0,
+        use_cache: bool = True,
 
         **kwargs
     ):
@@ -31,6 +33,11 @@ class EtudeHFConfig(PretrainedConfig):
         self.dropout = dropout
 
         self.head_size = self.n_embd // self.n_head
+        self.use_cache = use_cache
+
+        self.num_hidden_layers = n_layer    
+        self.num_attention_heads = n_head    
+        self.hidden_size = n_embd    
 
         super().__init__(
             tie_word_embeddings=tie_word_embeddings,
@@ -58,7 +65,6 @@ class RotaryEmbedding(nn.Module):
         self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)
 
     def forward(self, x: torch.Tensor, seq_len_offset: int = 0) -> Tuple[torch.Tensor, torch.Tensor]:
-        # x shape: (B, H, T, D_h)
         seq_len = x.shape[2]
         if seq_len + seq_len_offset > self.max_seq_len_cached:
             self._set_cos_sin_cache(seq_len=seq_len + seq_len_offset, device=x.device, dtype=x.dtype)
@@ -73,8 +79,8 @@ def rotate_half(x: torch.Tensor) -> torch.Tensor:
     return torch.cat((-x2, x1), dim=-1)
 
 def apply_rotary_pos_emb(q: torch.Tensor, k: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-    cos = cos.unsqueeze(0).unsqueeze(0)  # (1, 1, T, D_h)
-    sin = sin.unsqueeze(0).unsqueeze(0)  # (1, 1, T, D_h)
+    cos = cos.unsqueeze(0).unsqueeze(0)
+    sin = sin.unsqueeze(0).unsqueeze(0)
     q_embed = (q * cos) + (rotate_half(q) * sin)
     k_embed = (k * cos) + (rotate_half(k) * sin)
     return q_embed, k_embed
@@ -90,31 +96,27 @@ class MultiHeadAttention(nn.Module):
         self.rope = RotaryEmbedding(self.head_size, max_position_embeddings=4096)
         self.dropout = config.dropout
 
-    def forward(self, x: torch.Tensor, past_key_value: Optional[Tuple[torch.Tensor, torch.Tensor]] = None, use_cache: bool = False, attention_mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+    def forward(self, x: torch.Tensor, past_key_value: Optional[Cache] = None, use_cache: bool = False, attention_mask: Optional[torch.Tensor] = None, layer_idx: Optional[int] = None) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
         B, T, C = x.size()
         
         q, k, v = self.qkv_proj(x).split(self.n_embd, dim=2)
-        
-        q = q.view(B, T, self.n_head, self.head_size).transpose(1, 2) # (B, H, T, D_h)
-        k = k.view(B, T, self.n_head, self.head_size).transpose(1, 2) # (B, H, T, D_h)
-        v = v.view(B, T, self.n_head, self.head_size).transpose(1, 2) # (B, H, T, D_h)
+        q = q.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        k = k.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        v = v.view(B, T, self.n_head, self.head_size).transpose(1, 2)
 
         seq_len_offset = 0
         if past_key_value is not None:
-            seq_len_offset = past_key_value[0].shape[2]
+            seq_len_offset = past_key_value.get_seq_length(layer_idx)
         
         cos, sin = self.rope(q, seq_len_offset=seq_len_offset)
         q, k = apply_rotary_pos_emb(q, k, cos, sin)
 
         if past_key_value is not None:
-            past_k, past_v = past_key_value
-            k = torch.cat([past_k, k], dim=2)
-            v = torch.cat([past_v, v], dim=2)
+            k, v = past_key_value.update(k, v, layer_idx, cache_kwargs={"sin": sin, "cos": cos})
 
-        present_key_value = (k, v) if use_cache else None
+        present_key_value = None 
         
         is_causal = attention_mask is None
-
         out = F.scaled_dot_product_attention(
             q, k, v,
             attn_mask=attention_mask,
@@ -122,7 +124,7 @@ class MultiHeadAttention(nn.Module):
             is_causal=is_causal
         )
 
-        out = out.transpose(1, 2).contiguous().view(B, T, C) # (B, T, C)
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
         return self.out_proj(out), present_key_value
 
 class SwiGLU(nn.Module):
@@ -139,16 +141,10 @@ class SwiGLU(nn.Module):
 class FeedForward(nn.Module):
     def __init__(self, config: EtudeHFConfig):
         super().__init__()
-
         hidden_dim = int(config.n_embd * 4 * (2 / 3))
         multiple_of = 256
         hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
-
-        self.net = SwiGLU(
-            dim=config.n_embd,
-            hidden_dim=hidden_dim,
-            dropout=config.dropout
-        )
+        self.net = SwiGLU(dim=config.n_embd, hidden_dim=hidden_dim, dropout=config.dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x)
@@ -161,20 +157,19 @@ class Block(nn.Module):
         self.ffn = FeedForward(config)
         self.ln2 = nn.RMSNorm(config.n_embd)
 
-    def forward(self, x: torch.Tensor, past_key_value: Optional[Tuple[torch.Tensor, torch.Tensor]] = None, use_cache: bool = False, attention_mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
+    def forward(self, x: torch.Tensor, past_key_value: Optional[Cache] = None, use_cache: bool = False, attention_mask: Optional[torch.Tensor] = None, layer_idx: Optional[int] = None) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
         residual = x
         x_norm = self.ln1(x)
-        x_att, present_kv = self.att(x_norm, past_key_value, use_cache, attention_mask)
+        x_att, present_kv = self.att(x_norm, past_key_value, use_cache, attention_mask, layer_idx=layer_idx)
         x = residual + x_att
 
         residual = x
         x_norm = self.ln2(x)
         x_ffn = self.ffn(x_norm)
         x = residual + x_ffn
-        
         return x, present_kv
 
-class Etude(PreTrainedModel):
+class Etude(PreTrainedModel, GenerationMixin):
     config_class = EtudeHFConfig
 
     def __init__(self, config: EtudeHFConfig):
@@ -185,65 +180,24 @@ class Etude(PreTrainedModel):
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         
         self.post_init()
+
+    def prepare_inputs_for_generation(
+        self, input_ids, past_key_values=None, attention_mask=None, **kwargs
+    ):
+        past_length = 0
+        if past_key_values is not None:
+             past_length = past_key_values.get_seq_length()
         
-    def generate(self, input_ids, max_new_tokens=20, do_sample=True, temperature=0.7, top_p=0.9, 
-                 eos_token_id=None, pad_token_id=None, **kwargs):
+        if past_length > 0:
+            input_ids = input_ids[:, -1:]
 
-        batch_size = input_ids.shape[0]
-        device = input_ids.device
-        
-
-        if eos_token_id is None:
-            eos_token_id = self.config.eos_token_id
-        if pad_token_id is None:
-            pad_token_id = self.config.pad_token_id
-            
-        generated_tokens = input_ids.clone()
-    
-        unfinished_sequences = torch.ones(batch_size, dtype=torch.long, device=device)
-        
-
-        for _ in range(max_new_tokens):
-
-            with torch.no_grad():
-                outputs = self.forward(
-                    input_ids=generated_tokens,
-                    use_cache=True,
-                    **kwargs
-                )
-                
-  
-            next_token_logits = outputs.logits[:, -1, :]
-            
-     
-            if temperature > 0:
-                next_token_logits = next_token_logits / temperature
-            
-            if do_sample and top_p < 1.0:
-                sorted_logits, sorted_indices = torch.sort(next_token_logits, descending=True)
-                cumulative_probs = torch.cumsum(F.softmax(sorted_logits, dim=-1), dim=-1)
-                sorted_indices_to_remove = cumulative_probs > top_p
-                sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
-                sorted_indices_to_remove[..., 0] = 0
-                indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
-                next_token_logits = next_token_logits.masked_fill(indices_to_remove, -float("Inf"))
-            
-            if do_sample:
-                probs = F.softmax(next_token_logits, dim=-1)
-                next_tokens = torch.multinomial(probs, num_samples=1).squeeze(1)
-            else:
-                next_tokens = torch.argmax(next_token_logits, dim=-1)
-            
-            next_tokens = next_tokens * unfinished_sequences + pad_token_id * (1 - unfinished_sequences)
-            
-            generated_tokens = torch.cat([generated_tokens, next_tokens.unsqueeze(-1)], dim=-1)
-            unfinished_sequences = unfinished_sequences * (next_tokens != eos_token_id)
-            
-    
-            if unfinished_sequences.max() == 0:
-                break
-                
-        return generated_tokens
+        model_inputs = {
+            "input_ids": input_ids,
+            "past_key_values": past_key_values,
+            "use_cache": kwargs.get("use_cache"),
+            "attention_mask": attention_mask,
+        }
+        return model_inputs
 
     def get_input_embeddings(self) -> nn.Module:
         return self.token_embedding
@@ -266,34 +220,27 @@ class Etude(PreTrainedModel):
 
         if past_key_values_length > 0:
             mask = torch.cat([torch.zeros(tgt_len, past_key_values_length, dtype=dtype, device=device), mask], dim=-1)
-            
         return mask[None, None, :, :].expand(bsz, 1, tgt_len, tgt_len + past_key_values_length)
 
     def _prepare_decoder_attention_mask(
         self, attention_mask: Optional[torch.Tensor], input_shape: Tuple[int, int], inputs_embeds: torch.Tensor, past_key_values_length: int
     ) -> Optional[torch.Tensor]:
-
         dtype = inputs_embeds.dtype
         device = inputs_embeds.device
         causal_mask = self._make_causal_mask(
-            input_shape,
-            dtype,
-            device=device,
-            past_key_values_length=past_key_values_length,
+            input_shape, dtype, device=device, past_key_values_length=past_key_values_length,
         )
 
         if attention_mask is None:
             return causal_mask
 
         if attention_mask.dim() == 2:
-
             expanded_mask = attention_mask[:, None, None, :].expand(
                 input_shape[0], 1, input_shape[1], input_shape[1] + past_key_values_length
             ).to(dtype)
             inverted_mask = 1.0 - expanded_mask
             padding_mask = inverted_mask.masked_fill(inverted_mask.to(torch.bool), torch.finfo(dtype).min)
             return padding_mask + causal_mask
-
         return causal_mask
 
     def forward(
@@ -311,17 +258,21 @@ class Etude(PreTrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
 
         x = self.token_embedding(input_ids)
-        past_key_values_length = past_key_values[0][0].shape[2] if past_key_values is not None else 0
+        
+        if use_cache and past_key_values is None:
+             past_key_values = DynamicCache()
+
+        past_key_values_length = 0
+        if past_key_values is not None:
+             past_key_values_length = past_key_values.get_seq_length()
+
         attention_mask = self._prepare_decoder_attention_mask(
             attention_mask, input_ids.shape, x, past_key_values_length
         )
-        present_kvs = [] if use_cache else None
 
         for i, block in enumerate(self.blocks):
-            past_kv = past_key_values[i] if past_key_values is not None else None
-            x, present_kv = block(x, past_kv, use_cache, attention_mask)
-            if use_cache and present_kv is not None:
-                present_kvs.append(present_kv)
+
+            x, _ = block(x, past_key_values, use_cache, attention_mask, layer_idx=i)
         
         x = self.ln_f(x)
         logits = self.lm_head(x)
@@ -332,13 +283,13 @@ class Etude(PreTrainedModel):
             loss = loss_fct(logits.view(-1, logits.size(-1)), labels.view(-1))
 
         if not return_dict:
-            output = (logits,) + (tuple(present_kvs) if present_kvs else None,)
+            output = (logits,) + (None,)
             return (loss,) + output if loss is not None else output
 
         return CausalLMOutputWithPast(
             loss=loss,
             logits=logits,
-            past_key_values=tuple(present_kvs) if present_kvs else None,
+            past_key_values=past_key_values,
             hidden_states=None,
             attentions=None,
         )

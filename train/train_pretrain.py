@@ -11,8 +11,6 @@ from model.model import Etude, EtudeHFConfig
 from config import PretrainConfig, DataConfig, TokenizerConfig
 from data_utils import StreamingDataset
 
-
-
 def train() -> None:
     p_cfg = PretrainConfig()
     d_cfg = DataConfig()
@@ -32,7 +30,6 @@ def train() -> None:
         vocab_size=tokenizer.vocab_size,
         eos_token_id=tokenizer.eos_token_id,
         pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
-        use_cache=True,
     )
     print(f"分词器加载成功，词表大小: {m_cfg.vocab_size}")
 
@@ -51,6 +48,7 @@ def train() -> None:
         pin_memory=True
     )
 
+
     model: Etude
     if os.path.exists(os.path.join(p_cfg.pretrain_model_dir, "pytorch_model.bin")):
         print(f"[恢复训练] 从HF模型目录 {p_cfg.pretrain_model_dir} 加载模型")
@@ -62,7 +60,6 @@ def train() -> None:
     print("模型初始化完成。")
 
     optimizer = AdamW(model.parameters(), lr=p_cfg.lr)
-
     scaler = torch.amp.GradScaler(enabled=('cuda' in p_cfg.device))
 
     global_step = 0
@@ -70,6 +67,8 @@ def train() -> None:
     if os.path.exists(p_cfg.checkpoint_file):
         print(f"[恢复训练状态] 从 {p_cfg.checkpoint_file} 加载...")
         checkpoint: Dict[str, Any] = torch.load(p_cfg.checkpoint_file, map_location=p_cfg.device)
+
+        
         optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         if "scaler_state_dict" in checkpoint and ('cuda' in p_cfg.device):
             scaler.load_state_dict(checkpoint["scaler_state_dict"])
@@ -85,10 +84,10 @@ def train() -> None:
         for batch_idx, (x, y) in enumerate(dataloader):
             x, y = x.to(p_cfg.device, non_blocking=True), y.to(p_cfg.device, non_blocking=True)
 
-
             device_type = p_cfg.device.split(':')[0]
             with torch.autocast(device_type=device_type, dtype=torch.bfloat16, enabled=('cuda' in p_cfg.device)):
-                outputs = model(input_ids=x, labels=y)
+
+                outputs = model(input_ids=x, labels=y, use_cache=False)
                 loss = outputs.loss
                 if loss is not None:
                     loss = loss / p_cfg.accumulation_steps
@@ -109,6 +108,7 @@ def train() -> None:
 
                 if global_step > 0 and global_step % p_cfg.save_every == 0:
                     print(f"\n[保存] Step {global_step}: 保存检查点和模型...")
+
                     model.save_pretrained(p_cfg.pretrain_model_dir, safe_serialization=False)
                     tokenizer.save_pretrained(p_cfg.pretrain_model_dir)
                     torch.save({

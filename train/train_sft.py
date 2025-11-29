@@ -22,6 +22,7 @@ def sft_train() -> None:
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+        
     effective_batch_size = sft_cfg.batch_size * sft_cfg.accumulation_steps
     print("--- 指令微调 SFT 配置 ---")
     print(f"设备: {sft_cfg.device}")
@@ -30,22 +31,24 @@ def sft_train() -> None:
     print("-------------------------")
 
     dataset = StreamingDataset(d_cfg, tokenizer, mode='sft')
-    dataloader = DataLoader(dataset, batch_size=sft_cfg.batch_size, num_workers=sft_cfg.num_workers, pin_memory=True)
+    dataloader = DataLoader(
+        dataset, 
+        batch_size=sft_cfg.batch_size, 
+        num_workers=sft_cfg.num_workers, 
+        pin_memory=True
+    )
 
     model: Etude
-    model_config: EtudeHFConfig
-
+    
     sft_model_path = os.path.join(sft_cfg.sft_model_dir, "pytorch_model.bin")
     pretrain_model_path = os.path.join(sft_cfg.pretrain_model_dir, "pytorch_model.bin")
 
     if os.path.exists(sft_model_path):
-        print(f"[恢复SFT训练] 从HF模型目录 {sft_cfg.sft_model_dir} 加载模型和配置")
+        print(f"[恢复SFT训练] 从HF模型目录 {sft_cfg.sft_model_dir} 加载模型")
         model = Etude.from_pretrained(sft_cfg.sft_model_dir).to(sft_cfg.device)
-        model_config = model.config
     elif os.path.exists(pretrain_model_path):
         print(f"未找到SFT模型，从预训练模型目录 {sft_cfg.pretrain_model_dir} 加载")
         model = Etude.from_pretrained(sft_cfg.pretrain_model_dir).to(sft_cfg.device)
-        model_config = model.config
     else:
         print("[错误] 未找到保存点或预训练权重：退出。")
         return
@@ -70,17 +73,24 @@ def sft_train() -> None:
     model.train()
     for epoch in range(start_epoch, sft_cfg.epochs):
         print(f"\n=== Epoch {epoch+1}/{sft_cfg.epochs} ===")
+        epoch_start_time = time.time()
 
         for batch_idx, (x, y) in enumerate(dataloader):
             x = x.to(sft_cfg.device, non_blocking=True)
             y = y.to(sft_cfg.device, non_blocking=True)
 
-
-            attention_mask = (x != tokenizer.pad_token_id).to(sft_cfg.device, non_blocking=True)
+            pad_id = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else tokenizer.eos_token_id
+            attention_mask = (x != pad_id).long().to(sft_cfg.device, non_blocking=True)
 
             device_type = sft_cfg.device.split(':')[0]
             with torch.autocast(device_type=device_type, dtype=torch.bfloat16, enabled=('cuda' in sft_cfg.device)):
-                outputs = model(input_ids=x, labels=y, attention_mask=attention_mask)
+
+                outputs = model(
+                    input_ids=x, 
+                    labels=y, 
+                    attention_mask=attention_mask, 
+                    use_cache=False 
+                )
                 loss = outputs.loss
 
                 if loss is not None:
@@ -111,6 +121,9 @@ def sft_train() -> None:
                         "epoch": epoch,
                     }, sft_cfg.checkpoint_file)
                     print(f"检查点和模型已保存至: {sft_cfg.sft_model_dir}\n")
+        
+        epoch_duration = time.time() - epoch_start_time
+        print(f"Epoch {epoch+1} 完成，耗时: {epoch_duration:.2f} 秒")
 
     print("\nSFT完成")
     model.save_pretrained(sft_cfg.sft_model_dir, safe_serialization=False)
