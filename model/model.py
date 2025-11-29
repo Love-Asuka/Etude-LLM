@@ -39,18 +39,6 @@ class EtudeHFConfig(PretrainedConfig):
             **kwargs
         )
 
-
-class RMSNorm(nn.Module):
-    def __init__(self, dim: int, eps: float = 1e-6):
-        super().__init__()
-        self.eps = eps
-        self.weight = nn.Parameter(torch.ones(dim))
-    def _norm(self, x: torch.Tensor) -> torch.Tensor:
-        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        output_dtype = x.dtype
-        return (self._norm(x.float()) * self.weight).to(output_dtype)
-
 class RotaryEmbedding(nn.Module):
     def __init__(self, dim: int, max_position_embeddings: int = 4096, base: int = 10000, device: Optional[torch.device] = None):
         super().__init__()
@@ -169,9 +157,9 @@ class Block(nn.Module):
     def __init__(self, config: EtudeHFConfig):
         super().__init__()
         self.att = MultiHeadAttention(config)
-        self.ln1 = RMSNorm(config.n_embd)
+        self.ln1 = nn.RMSNorm(config.n_embd)
         self.ffn = FeedForward(config)
-        self.ln2 = RMSNorm(config.n_embd)
+        self.ln2 = nn.RMSNorm(config.n_embd)
 
     def forward(self, x: torch.Tensor, past_key_value: Optional[Tuple[torch.Tensor, torch.Tensor]] = None, use_cache: bool = False, attention_mask: Optional[torch.Tensor] = None) -> Tuple[torch.Tensor, Optional[Tuple[torch.Tensor, torch.Tensor]]]:
         residual = x
@@ -193,7 +181,7 @@ class Etude(PreTrainedModel):
         super().__init__(config)
         self.token_embedding = nn.Embedding(config.vocab_size, config.n_embd)
         self.blocks = nn.ModuleList([Block(config) for _ in range(config.n_layer)])
-        self.ln_f = RMSNorm(config.n_embd)
+        self.ln_f = nn.RMSNorm(config.n_embd)
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         
         self.post_init()

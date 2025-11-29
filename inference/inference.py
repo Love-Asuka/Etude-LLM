@@ -67,7 +67,7 @@ def generate_reply_with_cache(
     conversation_history: List[Dict[str, str]], 
     device: str,
     max_new_tokens: int = 1024, 
-    temperature: float = 0.7, 
+    temperature: float = 1, 
     top_p: float = 0.95,
 ) -> str:
 
